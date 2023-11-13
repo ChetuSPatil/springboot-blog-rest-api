@@ -5,6 +5,7 @@ import com.javateche.blog.payload.PostDTO;
 import com.javateche.blog.payload.PostPageResponse;
 import com.javateche.blog.service.PostService;
 import com.javateche.blog.utils.AppConstants;
+import jakarta.validation.Valid;
 import org.apache.catalina.connector.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
@@ -27,7 +28,7 @@ public class PostController {
 
     //create blog post;
     @PostMapping
-    public ResponseEntity<PostDTO> createPost(@RequestBody PostDTO postDto){
+    public ResponseEntity<PostDTO> createPost(@Valid @RequestBody PostDTO postDto){
         return new ResponseEntity<>(postService.createPost(postDto), HttpStatus.CREATED);
     }
 
@@ -50,7 +51,7 @@ public class PostController {
 
     //Update Post by id
     @PutMapping("/{id}")
-    public ResponseEntity<PostDTO> updatePost(@RequestBody PostDTO postDTO, @PathVariable(name = "id") Long postId){
+    public ResponseEntity<PostDTO> updatePost(@Valid @RequestBody PostDTO postDTO, @PathVariable(name = "id") Long postId){
         PostDTO postResponse = postService.updatePost(postDTO, postId);
         return ResponseEntity.ok(postResponse);
     }

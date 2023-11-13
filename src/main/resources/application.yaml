@@ -14,3 +14,8 @@ spring:
         #dialect: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: update
+  security:
+    user:
+      name: chetu
+      password: chinnu
+      roles: ADMIN

@@ -4,9 +4,15 @@ import com.javateche.blog.entity.Post;
 import com.javateche.blog.exception.ResourceNotFoundException;
 import com.javateche.blog.exception.SQLException;
 import com.javateche.blog.payload.PostDTO;
+import com.javateche.blog.payload.PostPageResponse;
 import com.javateche.blog.repository.PostRepository;
 import com.javateche.blog.service.PostService;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,9 +24,12 @@ public class PostServiceImpl implements PostService {
 
     private PostRepository postRepository;
 
+    private ModelMapper mapper;
+
     @Autowired //if a class has only one attribute then we can omit @Autowired annotation
-    public PostServiceImpl(PostRepository postRepository){
+    public PostServiceImpl(PostRepository postRepository, ModelMapper mapper){
         this.postRepository = postRepository;
+        this.mapper = mapper;
     }
 
     @Override
@@ -40,12 +49,35 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public List<PostDTO> getAllPosts() {
-        List<Post> posts = postRepository.findAll();
-        List<PostDTO> postDTOS = posts.stream().map(post -> new PostDTO(post.getId(), post.getTitle(), post.getDescription(), post.getContent())).collect(Collectors.toList());
+    public PostPageResponse getAllPosts(int pageNo, int pageSize, String sortBy, String sortDirection) {
+
+        //List<Post> posts = postRepository.findAll();
+
+        //Creating sort object
+        //Sort sort = Sort.by(sortBy).ascending();
+        Sort sort = sortDirection.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+
+        Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
+        Page<Post>  postPage = postRepository.findAll(pageable);
+
+        //get content from page object
+        List<Post> posts = postPage.getContent();
+
+        //List<PostDTO> postDTOS = posts.stream().map(post -> new PostDTO(post.getId(), post.getTitle(), post.getDescription(), post.getContent())).collect(Collectors.toList());
         List<PostDTO> postDTOS1 = posts.stream().map(post -> mapToDto(post)).collect(Collectors.toList());
-        List<PostDTO> postDTOS2 = posts.stream().map(new PostServiceImpl(postRepository) :: mapToDto).collect(Collectors.toList());
-        return postDTOS1;
+        //List<PostDTO> postDTOS2 = posts.stream().map(new PostServiceImpl(postRepository) :: mapToDto).collect(Collectors.toList());
+
+        PostPageResponse postPageResponse = new PostPageResponse();
+        postPageResponse.setContent(postDTOS1);
+        postPageResponse.setPageNo(postPage.getNumber());
+        postPageResponse.setFirstPage(postPage.isFirst());
+        postPageResponse.setLastPage(postPage.isLast());
+        postPageResponse.setNumberOfRecords(postPage.getNumberOfElements());
+        postPageResponse.setTotalRecords(postPage.getTotalElements());
+        postPageResponse.setPageSize(postPage.getSize());
+        postPageResponse.setTotalPages(postPage.getTotalPages());
+
+        return postPageResponse;
     }
 
     @Override
@@ -78,22 +110,32 @@ public class PostServiceImpl implements PostService {
 
     //Convert entity into dto
     private PostDTO mapToDto(Post post){
+
+        PostDTO postDTO = mapper.map(post, PostDTO.class);
+
+        /*
         PostDTO postDTO = new PostDTO();
         postDTO.setId(post.getId());
         postDTO.setTitle(post.getTitle());
         postDTO.setDescription(post.getDescription());
         postDTO.setContent(post.getContent());
+        */
 
         return postDTO;
     }
 
     //Convert dto to entity
     private Post mapToEntity(PostDTO postDTO){
+
+        Post post = mapper.map(postDTO, Post.class);
+
+        /*
         Post post = new Post();
         post.setId(postDTO.getId());
         post.setTitle(postDTO.getTitle());
         post.setDescription(postDTO.getDescription());
         post.setContent(postDTO.getContent());
+        */
 
         return post;
     }

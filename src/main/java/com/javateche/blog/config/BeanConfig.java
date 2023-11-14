@@ -1,4 +1,4 @@
-package com.javateche.blog.conf;
+package com.javateche.blog.config;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Bean;

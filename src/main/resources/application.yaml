@@ -14,8 +14,11 @@ spring:
         #dialect: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: update
-  security:
-    user:
-      name: chetu
-      password: chinnu
-      roles: ADMIN
+  #security: #disabled because users are configured in-memory
+    #user:
+      #name: chetu
+      #password: chinnu
+      #roles: ADMIN
+
+app.jwt-secret: ecc76143ed7f23599a1604cf3fe1bdf90db27c2ee207bfa8bc3e15a418012324
+app-jwt-expiration-milliseconds: 604800000

@@ -30,4 +30,6 @@ public class PostDTO {
     @NotEmpty
     private String content;
     private Set<CommentDTO> comments = new HashSet<>();
+
+    private Long categoryId;
 }
